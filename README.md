@@ -1,0 +1,1 @@
+This is a solid example of what I'm calling the Data Template Pattern.
