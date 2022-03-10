@@ -1,5 +1,20 @@
 <?php
 
+if ( ! function_exists( 'run' ) )
+{
+
+	try {
+		$result = runApplication();
+	} catch( Exception $e ) {
+		die( 'Application error, please contact the administrator' );
+	}
+
+	return $result;
+
+}
+}
+
+if ( ! function_exists( 'runApplication' ) ) {
 function runApplication()
 {
 
@@ -9,7 +24,7 @@ function runApplication()
 		handle( $e );
 	}
 
-	$collection = Registry::get( 'collecton' );
+	$collection = collection();
 
 	try {
 
@@ -24,31 +39,77 @@ function runApplication()
 	return true;
 
 }
+}
 
+if ( ! function_exists( 'handle' ) ) {
 function handle( $e ) {
+
+	$collection = collection();
+	if ( collectionHas( 'handle' ) ) {
+
+		$handle = (bool) collectionGet( 'handle' );
+		switch ( $e ) {
+			true:
+				throw $e;
+			false:
+				return false;
+		}
+	}
 
 	throw $e;
 
 }
+}
 
-function bootstrap()
+if ( ! function_exists( 'callBy' ) ) {
+function callBy( $functions, $prefix )
 {
 
-	foreach ( get_defined_functions() as $name ) {
-		if ( 0 === strpos( $name, 'bootstrap' ) ) {
-			$name();
+	foreach ( $functions as $functionName ) {
+		if ( 0 === strpos( $name, $prefix ) ) {
+			$result[ $functionName ] = $functionName();
 		}
 	}
 
+	return $result;
+
+}
 }
 
+if ( ! function_exists( 'bootstrap' ) ) {
+function bootstrap()
+{
+
+	callBy( get_defined_functions(), 'bootstrap' );
+
+}
+
+if ( ! function_exists( 'bootstrapCollection' ) ) {
 function bootstrapCollection()
 {
 
 	Registry::set( 'collection', require LIB . 'collecton.php' );
 
 }
+}
 
+if ( ! function_exists( 'collecton' ) ) {
+function collection()
+{
+
+	try {
+		global $collection;
+//		$collection = Registry::get( 'collecton' );
+
+	} catch ( Exception $e ) {
+
+		handle( $e );
+	}
+	return $collecton;
+
+}
+
+if ( ! function_exists( '' ) ) {
 function runFunction( $function, $extract )
 {
 
@@ -75,6 +136,7 @@ function runFunction( $function, $extract )
 
 }
 
+if ( ! function_exists( '' ) ) {
 function argumentCollection( $function, $collection )
 {
 
@@ -91,19 +153,35 @@ function argumentCollection( $function, $collection )
 
 }
 
-function data( $collection )
+if ( ! function_exists( '' ) ) {
+function data( $collection, $key = 'data', $reach = [] )
 {
 
-	if ( ! dataHas( 'data', $collection ) ) {
+	if ( ! dataHas( $key, $collection ) ) {
 		throw new Exception;
 	}
-	$dataFunction = dataGet( 'data', $collection );
+	$dataFunction = dataGet( $key, $collection );
 
 	return runFunction( $dataFunction, 'collection' => $collection );
 
 }
 
-function template( $collection )
+if ( ! function_exists( 'dataStandard' ) ) {
+function dataStandard( PDO $pdo, $sql, $parameters = [], $args = [] )
+{
+
+	$result = selectPdoHandler( $pdo, $sql, $parameters );
+
+	collectionAdd( collection()
+
+
+
+	return $result;
+
+}
+
+if ( ! function_exists( 'template' ) ) {
+function template( $collection, $key = 'template', $reach = [] )
 {
 
 	if ( ! dataHas( 'template', $collection ) ) {
@@ -119,8 +197,11 @@ function template( $collection )
 
 }
 
-function dataHas( $name, $collection )
+if ( ! function_exists( 'collectionHas' ) ) {
+function collectionHas( $name, $collection, $reach = [] )
 {
+
+	$collection = collectionReach( $collection, $reach );
 
 	if ( in_array( $name, $collection ) ) {
 		return true;
@@ -129,38 +210,61 @@ function dataHas( $name, $collection )
 	return false;
 
 }
-
-public function dataGet( $collection, $name )
-{
-
-	return $collection[ $name ];
-
 }
 
-public function dataAdd( $name, $data, $collection )
+if ( ! function_exists( 'collectionGet' ) ) {
+public function collectonGet( $collection, $name, $reach = [] )
 {
 
-	return $collection[ $name ] = $data;
+	$collection = collectionReach( $collection, $reach );
+
+	if ( isset( $collection[ $name ] ) ) {
+		return $collection[ $name ];
+	}
+
+	return false;
 
 }
+}
 
-/**
-**/
-
-function dataStandard( PDO $pdo, $sql, $parameters = [], $args = [] )
+if ( ! function_exists( '' ) ) {
+public function collectionReach( &$collection, $reach = [] )
 {
 
-	$result = selectPdoHandler( $pdo, $sql, $parameters );
-	return $result;
+	foreach ( $reach as $key ) {
+		if ( isset( $collection[ $key ] ) ) {
+			$collection = &$collecton[ $key ];
+		} else {
+			throw new Exception( sprintf( 'Can not reach into collection at key: %s', $key ) );
+		}
+	}
+
+	return $collection;
 
 }
+}
 
-/** Settings */
+if ( ! function_exists( 'collectionAdd' ) ) {
+public function collectionAdd( $name, $data, &$collection = null, $reach = [] )
+{
 
-$collection = [
-	'data' => 'dataStandard',
-	'template' => 'templateStandard'
-];
+	if ( is_null( $collection ) ) {
+		$collection = collection();
+	}
+
+	$collection = collectionReach( $collection, $reach );
+
+	if ( ! is_array( $collection ) ) {
+		throw new Exception( 'Collection reached must be an array' );
+	}
+	$collection[ $name ] = $data;
+
+	return $data;
+
+}
+}
+
+/** PDO */
 
 if ( ! function_exists( 'selectPdoHandler' ) ) {
 function selectPdoHandler( $pdo, $sql, $parameters ) {
@@ -250,3 +354,53 @@ function statementPdoHandler( $type, $pdo, $sql, $parameters ) {
 
 }
 }
+
+class Registry
+{
+
+	public static function set( $name, $value, $args = [] )
+	{
+
+		if ( isset( $args[ 'reach' ] ) ) {
+			$registry = collectionReach( static::$registry, $args[ 'reach' ] );
+		}
+
+		if ( ! is_array( $registry ) ) {
+			throw new Exception( 'Registry reached must be an array' );
+		}
+
+		$registry[ $name ] = $value;
+
+	}
+
+	public static function get( $name, $args = [] )
+	{
+
+		$registry = static::all();
+
+		if ( isset( $args[ 'reach' ] ) ) {
+			$registry = collectionReach( $registry, $args[ 'reach' ] );
+		}
+
+		if ( ! is_array( $registry ) ) {
+			throw new Exception( 'Registry reached must be an array' );
+		}
+
+		return $registry[ $name ];
+
+	}
+
+}
+
+$collection = [
+	'data' => 'dataStandard',
+	'template' => 'templateStandard',
+	'pdo' => new PDO( 'mysql:host=localhost;dbname=mydb', 'username', 'password' ),
+	'sql' => 'select * from content where url=?',
+	'parameters' => [ url() ],
+	'templates' => [
+		'template' => 'template'
+	]
+];
+
+run();
