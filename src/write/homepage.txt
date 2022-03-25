@@ -1,0 +1,17 @@
+This site is essentially what's included in every site I build. It is a simple PHP application that runs on Apache. It is a very simple example of what I call the Data Template Pattern. You are worried about only two things here, pulling data from your data source and printing the template with that data included. If you use this basic formula your can but together simple websites relatively easily.
+
+Installation
+
+To install this package, simply download the archive (.zip) from <a href="https://github.com/nathanwooten/thedatatemplatepattern/">the repository on GitHub</a> and extract the contents into the root folder of your website. Pick a suitable location for the root path of your project on your device. If you are working at home then you may need to create a virtual host to run the site on. Directions for that with WampServer can be found on the Internet. To check to see if your website is working go to the host in your browser address bar. It might be something like me.localhost or www.example.com. If everyting is working, then you should see this article appear in your browser.
+
+Adding Content
+
+To add content simply save your text to a text file (.txt) in the "WRITEPATH". This is the path named "write" just inside the root folder. This is where the application looks for content. Each file is a post or article on your site. The menu includes all files in this folder, so you may want to store development content in a subfolder of the WRITEPATH. For things to work correctly your filenames should be in lowercase with words separated by dashes.
+
+When you get bored with this...
+
+Check out some other options for building a website at https://github.com/nathanwooten.
+
+Or...
+
+Head on over to a more detailed look at this website template, at <a href="/basic-application-layout">Application Layout</a>.
