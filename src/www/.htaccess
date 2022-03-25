@@ -1,0 +1,4 @@
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule !\.(?:bmp|css|gif|jpg|jpeg|js|json|pdf|png|tiff|txt|xml)$ index.php [NC]
