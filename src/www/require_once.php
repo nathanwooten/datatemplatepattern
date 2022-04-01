@@ -31,6 +31,6 @@ function dtaGetPath( $start, $finishFile )
 
 }
 
-$path = dtaGetPath( __DIR__, 'project.txt' );
+$path = dtaGetPath( __DIR__, 'projectrootflag.txt' );
 
 require_once $path . 'require_once.php';
