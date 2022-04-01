@@ -188,22 +188,20 @@ class AbstractInputRegistry extends AbstractRegistry
 
 	public $container = [
 		'*' => [
-			[
+			'url' => [
 				'dtaUrl',
-				null,
-				'url'
+				null
 			],
 
-			[
+			'content' => [
 				'dtaDataFilePull',
 				[
 					'url' => null,
 					'directory' => WRITEPATH
-				],
-				'content'
+				]
 			],
 
-			[
+			'template' => [
 				'dtaTemplateCompile',
 				[
 					'template',
@@ -211,11 +209,10 @@ class AbstractInputRegistry extends AbstractRegistry
 					[
 						'content' => null
 					]
-				],
-				'template'
+				]
 			],
 
-			[
+			'response' => [
 				'dtaTemplateResponse',
 				[
 					'template' => null
@@ -285,7 +282,45 @@ if ( ! function_exists( 'dtaApplication' ) ) {
 function dtaApplication( $container = null )
 {
 
-	return dtaIterate( $container );
+	dtaInitialize();
+
+	$response = dtaIterate( $container );
+	return $response;
+
+}
+}
+
+if ( ! function_exists( 'dtaInitialize' ) ) {
+function dtaInitialize()
+{
+
+	$defined = get_defined_functions();
+	$user = $defined[ 'user' ];
+
+	$prefix = __FUNCTION__;
+
+	try {
+		foreach ( $user as $function ) {
+			if ( 0 === strpos( $function, $prefix ) ) {
+				$function();
+			}
+		}
+	} catch ( Exception $e ) {
+		dtaHandle( $e, 1 );
+	}
+
+	return 1;
+
+}
+}
+
+if ( ! function_exists( 'dtaInitializeRegistries' ) ) {
+function dtaIntializeRegistries()
+{
+
+	foreach ( [ 'Registry', 'InputRegistry' ] as $registry ) {
+		$registry::getInstance();
+	}
 
 }
 }
@@ -298,9 +333,7 @@ function dtaIterate( $container = null )
 
 	$route = '*';
 
-	foreach ( $container[ $route ] as $key => $callArray ) {
-
-		$resultName = isset( $callArray[2] ) ? $callArray[2] : $route . '.' . $key;	
+	foreach ( $container[ $route ] as $cache => $callArray ) {
 
 		$callback = $callArray[0];
 
@@ -313,7 +346,7 @@ function dtaIterate( $container = null )
 			$args = [];
 		}
 
-		$response = dtaCall( $resultName, $callback, $args );
+		$response = dtaCall( $cache, $callback, $args );
 	}
 
 	return $response;
