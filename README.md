@@ -1,4 +1,4 @@
-This is the latest installment of the example application for the Data Template Pattern. This is the truest form of the pattern. A set of callables and input/output that are available to each other in a chain of data/template calls. To see the meat of the application check out the file: /src/vendor/builder/src/dta.php
+This is the latest installment of the example application for the Data Template Pattern. This is the truest form of the pattern. A set of callables and input/output that are available to each other in a chain of data/template calls. To see the meat of the application check out the file: /src/vendor/builder/src/dta.php, To see the configuration that you could use to start with check the file: /src/vendor/site/src/Registry/src/InputRegistryContainer.php
 
 This project is completely open source with the hopes that people will use and develop and re-published it on their own.
 
