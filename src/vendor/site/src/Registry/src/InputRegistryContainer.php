@@ -16,7 +16,7 @@ class InputRegistryContainer extends AbstractRegistry
 
 		/** Matches the homepage */
 
-		'/' => [
+		'homepage' => [
 
 			'content' => [
 				'dtaDataFilePull',
