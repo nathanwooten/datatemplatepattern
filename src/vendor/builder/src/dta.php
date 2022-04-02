@@ -84,7 +84,7 @@ function dtaRoute( $url, $routes ) {
 				}
 			}
 		}
-
+var_dump( $route );
 		if ( ! isset( $route ) && isset( $routes[ '*' ] ) ) {
 			$route = $routes[ '*' ];
 		}
