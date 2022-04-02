@@ -13,8 +13,7 @@ function dta()
 
 	try {
 
-		$container = dtaInput();
-		$result = dtaApplication( $container );
+		$result = dtaApplication( dtaInput() );
 
 	} catch ( Exception $e ) {
 
@@ -54,8 +53,44 @@ function dtaApplication( $container = null )
 		dtaHandle( $e, 1 );
 	}
 
-	$response = dtaIterate( $container );
+	$response = dtaIterate( dtaRoute( dtaUrl(), $container ) );
 	return $response;
+
+}
+}
+
+if ( ! function_exists( 'route' ) ) {
+function dtaRoute( $url, $routes ) {
+
+	$route = false;
+
+	if ( is_object( $routes ) ) {
+		$routes = $routes->all();
+	}
+
+	if ( array_key_exists( $url, $routes ) ) {
+		$route = $routes[ $url ];
+
+	} else {
+
+		foreach ( $routes as $pattern => $rt ) {
+			if ( 0 === strpos( $pattern, '#' ) ) {
+
+				preg_match( $pattern, $url, $matches );
+
+				if ( ! empty( $matches ) ) {
+					$route = $rt;
+					break;
+				}
+			}
+		}
+
+		if ( ! isset( $route ) && isset( $routes[ '*' ] ) ) {
+			$route = $routes[ '*' ];
+		}
+	}
+
+	return $route;
 
 }
 }
@@ -98,14 +133,10 @@ function dtaIntializeRegistries()
 }
 
 if ( ! function_exists( 'dtaIterate' ) ) {
-function dtaIterate( $container = null )
+function dtaIterate( $route )
 {
 
-	$container = dtaInput( $container );
-
-	$route = '*';
-
-	foreach ( $container[ $route ] as $cache => $callArray ) {
+	foreach ( $route as $cacheName => $callArray ) {
 
 		$callback = $callArray[0];
 
@@ -118,7 +149,7 @@ function dtaIterate( $container = null )
 			$args = [];
 		}
 
-		$response = dtaCall( $cache, $callback, $args );
+		$response = dtaCall( $cacheName, $callback, $args );
 	}
 
 	return $response;
@@ -147,8 +178,6 @@ function dtaParseArgs( $args, $container ) {
 }
 }
 
-
-
 if ( ! function_exists( 'dtaCall' ) ) {
 function dtaCall( $name, $callback, array $args = [] )
 {
@@ -167,12 +196,21 @@ function dtaCall( $name, $callback, array $args = [] )
 }
 }
 
-if ( ! function_exists( '' ) ) {
+if ( ! function_exists( 'dtaRequestTarget' ) ) {
+function dtaRequestTarget()
+{
+
+	return $_SERVER[ 'REQUEST_URI' ];
+
+}
+}
+
+if ( ! function_exists( 'dtaUrl' ) ) {
 function dtaUrl( $url = null, $filters = null )
 {
 
 	if ( ! isset( $url ) ) {
-		$url = $_SERVER[ 'REQUEST_URI' ];
+		$url = dtaRequestTarget();
 	}
 
 	$url = parse_url( $url, PHP_URL_PATH );
